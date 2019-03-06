@@ -14,7 +14,7 @@
             <h3>{{dish.name | uppercase}}</h3>
           </mat-card-title>
         </mat-card-header>
-        <img mat-card-image src={{dish.image}} alt={{dish.name}}>
+        <img mat-card-image src="{{ baseURL + dish.image }}" alt={{dish.name}}>
         <mat-card-content>
           <p>{{dish.description}}
           </p>
@@ -47,7 +47,7 @@
                 <span> {{comment.comment}} </span>
               </p>
           <h4 matLine> {{comment.rating}} Stars</h4>
-          <p matLine> -- {{comment.author}} {{comment.date | date:format}}</p>
+          <p matLine> -- {{comment.author}} {{comment.date | date}}</p>
         </mat-list-item>
       </mat-list>
   </div>
