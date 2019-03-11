@@ -1,6 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
+import { FeedbackService } from '../services/feedback.service';
 import { flyInOut, expand } from '../animations/app.animations';
 
 @Component({
@@ -21,8 +22,21 @@ export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  feedbackcopy: Feedback;
   contactType = ContactType;
+  errMess : string;
   @ViewChild('fform') feedbackFormDirective;
+  public divForm: boolean;
+  public divSpin: boolean;
+  public divSubmit: boolean; 
+
+  fName: string;
+  lName: string;
+  telNo: number;
+  email: string;
+  agree: boolean;
+  contacttye: string;
+  message: string;
 
   formErrors = {
     'firstname': '',
@@ -52,11 +66,16 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor( private fb: FormBuilder ) {
+  constructor( private feedbackservice: FeedbackService,
+    private fb: FormBuilder,
+    @Inject('baseURL') private baseURL ) {
          this.createForm();
    }
 
   ngOnInit() {
+    this.divForm = true;
+    this.divSpin = false;
+    this.divSubmit = false;
   }
  
   createForm(){
@@ -94,12 +113,45 @@ export class ContactComponent implements OnInit {
         }
       }
     }
-  }
+  }   
 
   onSubmit() {
-    this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
 
+    this.divForm = false;
+    this.divSpin = true;
+
+    this.feedback = this.feedbackForm.value;
+    //console.log(this.feedback);
+    this.feedbackcopy = this.feedbackForm.value;
+   
+    this.feedbackservice.submitFeedback(this.feedbackcopy)
+      .subscribe(feedback => {
+        this.feedback = feedback; this.feedbackcopy = feedback;
+
+        //wait 5 Seconds and hide
+        setTimeout(function() {
+                    }, 5000);       
+          
+          //console.log(this.feedbackcopy);
+              this.divSpin = false;
+              this.divSubmit = true;
+
+              this.fName = this.feedbackcopy.firstname;
+              this.lName = this.feedbackcopy.lastname;
+              this.telNo = this.feedbackcopy.telnum;
+              this.email = this.feedbackcopy.email;
+              this.agree = this.feedbackcopy.agree;
+              this.contacttye = this.feedbackcopy.contacttype;
+              this.message = this.feedbackcopy.message;
+              
+              setTimeout(function() {
+                location.reload();               
+              }, 5000);
+                          
+      },
+      errmess => { this.feedback = null; this.feedbackcopy = null; this.errMess = <any>errmess; });    
+    
+    this.feedbackForm.reset();
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
